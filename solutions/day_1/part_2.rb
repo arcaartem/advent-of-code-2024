@@ -12,16 +12,12 @@ class Day1Part2 < AoCSolution
 
   def read_lists
     @left = []
-    @right = {}
+    @right = Hash.new(0)
 
     input_lines.each do |line|
       l, r = line.split.map(&:to_i)
       @left << l
-      if @right.include?(r)
-        @right[r] += 1
-      else
-        @right[r] = 1
-      end
+      @right[r] += 1
     end
   end
 
