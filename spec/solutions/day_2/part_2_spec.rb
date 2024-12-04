@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../solutions/day_2/part_2'
-
 RSpec.describe Day2Part2 do
   let(:instance) { described_class.new }
 

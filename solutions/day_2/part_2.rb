@@ -15,23 +15,9 @@ class Day2Part2 < AoCSolution
   end
 
   def count_safe_reports
-    counter = 0
-    @reports.each do |report|
-      if safe_report?(report)
-        counter += 1
-        next
-      end
-
-      for i in 0...report.length
-        new_report = report.dup
-        new_report.delete_at(i)
-        if safe_report?(new_report)
-          counter += 1
-          break
-        end
-      end
+    @reports.count do |report|
+      report_permutations(report).find { |perm| safe_report?(perm) }
     end
-    counter
   end
 
   def all_increasing?(report)
@@ -48,5 +34,16 @@ class Day2Part2 < AoCSolution
 
   def safe_report?(report)
     (all_increasing?(report) || all_decreasing?(report)) && elements_differ_by(report, 1, 3)
+  end
+
+  def report_permutations(report)
+    Enumerator.new do |yielder|
+      yielder << report
+      report.length.times do |i|
+        new_report = report.dup
+        new_report.delete_at(i)
+        yielder << new_report
+      end
+    end
   end
 end
