@@ -15,6 +15,7 @@ guard :rspec, cmd: 'bundle exec rspec' do
   # Ruby files
   ruby = dsl.ruby
   dsl.watch_spec_files_for(ruby.lib_files)
+  dsl.watch_spec_files_for(%r{^(solutions/day_\d+/part_\d+)\.rb})
 end
 
 guard :rubocop do
