@@ -5,21 +5,19 @@ require 'aoc_support'
 class Day6Part1 < AoCSolution
   DIRECTIONS = %w[^ > v <].freeze
 
-  attr_reader :map, :traversed, :current_position, :direction
+  attr_reader :map, :traversed
 
   def solution
     read_map
-    find_starting_position
-    predict_route
+    current_position, current_direction = find_starting_position
+    predict_route(current_position, current_direction)
     count_traversed
   end
 
   protected
 
   def read_map
-    @map = input_lines.map do |line|
-      line.chomp.chars
-    end
+    @map = input_lines.map { |line| line.chomp.chars }
   end
 
   def find_starting_position
@@ -27,30 +25,30 @@ class Day6Part1 < AoCSolution
       row.each_with_index do |cell, col_index|
         next unless DIRECTIONS.include?(cell)
 
-        @current_position = [row_index, col_index]
-        @direction = cell
-        break
+        return [row_index, col_index], cell
       end
     end
   end
 
-  def predict_route
-    @traversed = Array.new(map.size) { Array.new(map.first.size, false) }
+  def predict_route(starting_position, starting_direction)
+    @traversed = Array.new(row_count) { Array.new(col_count, false) }
+    current_position = starting_position
+    current_direction = starting_direction
 
     loop do
       break unless in_bounds?(*current_position)
 
       traversed[current_position.first][current_position.last] = true
 
-      if obstacle?(*current_position)
-        turn_right
+      if obstacle?(current_position, current_direction)
+        current_direction = turn_right(current_direction)
       else
-        move_forward
+        current_position = move_forward(current_position, current_direction)
       end
     end
   end
 
-  def move_forward
+  def move_forward(current_position, current_direction)
     directions = {
       '^' => [-1, 0],
       '>' => [0, 1],
@@ -58,12 +56,12 @@ class Day6Part1 < AoCSolution
       '<' => [0, -1]
     }
 
-    step = directions[direction]
+    step = directions[current_direction]
     row, col = current_position
-    @current_position = [row + step.first, col + step.last]
+    [row + step.first, col + step.last]
   end
 
-  def turn_right
+  def turn_right(direction)
     new_direction = {
       '^' => '>',
       '>' => 'v',
@@ -71,11 +69,12 @@ class Day6Part1 < AoCSolution
       '<' => '^'
     }
 
-    @direction = new_direction[direction]
+    new_direction[direction]
   end
 
-  def in_bounds?(row, col)
-    row >= 0 && row < map.size && col >= 0 && col < map[row].size
+  def in_bounds?(current_position)
+    row, col = current_position
+    row >= 0 && row < row_count && col >= 0 && col < col_count
   end
 
   def count_traversed
@@ -88,14 +87,23 @@ class Day6Part1 < AoCSolution
     end
   end
 
-  def obstacle?(row, col)
+  def row_count
+    @row_count ||= map.size
+  end
+
+  def col_count
+    @col_count ||= map.first.size
+  end
+
+  def obstacle?(position, direction)
+    row, col = position
     case direction
     when '^'
       row - 1 >= 0 && map[row - 1][col] == '#'
     when '>'
       col + 1 < map[row].size && map[row][col + 1] == '#'
     when 'v'
-      row + 1 < map.size && map[row + 1][col] == '#'
+      row + 1 < row_count && map[row + 1][col] == '#'
     when '<'
       col - 1 >= 0 && map[row][col - 1] == '#'
     end
