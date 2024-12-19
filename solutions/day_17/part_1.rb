@@ -4,6 +4,7 @@ require 'aoc_support'
 require_relative 'chronospatial_computer'
 
 class Day17Part1 < AoCSolution
+  input_from 'input.txt-sample-4'
   attr_reader :instructions, :computer, :reg_a, :reg_b, :reg_c
 
   def solution
